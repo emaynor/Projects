@@ -1,1 +1,189 @@
+import numpy as np
+import matplotlib.pyplot as plt
+import niceplots
+
+plt.style.use(niceplots.get_style())
+
+
+
+# Parameters
+mu_values_to_investigate = np.arange(0, 2.0, 0.01)  # Expanded range of mu values
+
+
+
+
+plt.style.use(niceplots.get_style())
+
+#Define x1 and x2 variables
+
+x1 = 1
+x2 = .43
+
+# Define the differential equations
+def equations(t, w1, w2, mu):
+    dw1dt = (mu - x1)*w1 - w2 +(2*x1*x2 - 1)*w1 **3
+    dw2dt = w1 + (mu - x2)*w2 +(2*x2 -1)*w2 **3
+    return dw1dt, dw2dt
+
+# Runge-Kutta integration method
+def runge_kutta(h, t, w1, w2, mu):
+    k1_w1, k1_w2 = equations(t, w1, w2, mu)
+    k2_w1, k2_w2 = equations(t + 0.5 * h, w1 + 0.5 * h * k1_w1, w2 + 0.5 * h * k1_w2, mu)
+    k3_w1, k3_w2 = equations(t + 0.5 * h, w1 + 0.5 * h * k2_w1, w2 + 0.5 * h * k2_w2, mu)
+    k4_w1, k4_w2 = equations(t + h, w1 + h * k3_w1, w2 + h * k3_w2, mu)
+
+    w1_new = w1 + (h / 6.0) * (k1_w1 + 2 * k2_w1 + 2 * k3_w1 + k4_w1)
+    w2_new = w2 + (h / 6.0) * (k1_w2 + 2 * k2_w2 + 2 * k3_w2 + k4_w2)
+
+    return w1_new, w2_new
+
+# Parameters
+mu = .9  # Adjust as needed
+t_max = 40.0
+h = 0.01  # Time step
+t_values = np.arange(0, t_max, h)
+w1_values = []
+w2_values = []
+
+# Initial conditions
+w1, w2 = 0.1, 0.1
+
+# Time integration loop
+for t in t_values:
+    w1, w2 = runge_kutta(h, t, w1, w2, mu)
+    w1_values.append(w1)
+    w2_values.append(w2)
+
+# Perform FFT
+fft_values = np.fft.fft(w1_values)
+fft_freq = np.fft.fftfreq(len(t_values), h)
+
+# Find the dominant frequency in hertz
+positive_freq_indices = np.where(fft_freq > 0)
+dominant_frequency = np.abs(fft_freq[positive_freq_indices][np.argmax(np.abs(fft_values[positive_freq_indices]))])
+
+#Plot the results
+plt.figure(figsize=(10, 6))
+
+# Plot the time-domain data
+plt.subplot(2, 1, 1)
+plt.plot(t_values, w1_values, label=r'$w1(t)$')
+plt.plot(t_values, w2_values, label=r'$w2(t)$')
+plt.xlabel('Time')
+plt.ylabel('Wval',rotation=0)
+plt.legend()
+
+# Plot the frequency-domain data
+plt.subplot(2, 1, 2)
+plt.plot(fft_freq[positive_freq_indices], np.abs(fft_values[positive_freq_indices]))
+plt.xlabel('Frequency (Hz)')
+plt.ylabel('Amplitude')
+plt.title('Fourier Transform')
+plt.grid()
+
+plt.tight_layout()
+plt.show()
+
+#Print the dominant frequency
+#print("Dominant Frequency:", dominant_frequency, "Hz")
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ... 
+
+# Parameters
+mu_values_to_investigate = np.arange(0, 1.1, 0.005)  # Values of mu from 0 to 1 at 0.1 intervals
+dominant_frequencies = []
+
+# Loop through different mu values
+for mu in mu_values_to_investigate:
+    t_max = 30.0
+    h = 0.01
+    t_values = np.arange(0, t_max, h)
+    w1_values = []
+    w2_values = []
+
+    # Initial conditions
+    w1, w2 = 0.2, 0.2
+
+    # Time integration loop
+    for t in t_values:
+        w1, w2 = runge_kutta(h, t, w1, w2, mu)
+        w1_values.append(w1)
+        w2_values.append(w2)
+
+    # Perform FFT
+    fft_values = np.fft.fft(w1_values)
+    fft_freq = np.fft.fftfreq(len(t_values), h)
+
+    # Find the dominant frequency in hertz
+    positive_freq_indices = np.where(fft_freq > 0)
+    dominant_frequency = np.abs(fft_freq[positive_freq_indices][np.argmax(np.abs(fft_values[positive_freq_indices]))])
+
+    # Store the dominant frequency for each mu
+    dominant_frequencies.append(dominant_frequency)
+
+ #Plot the results (optional)
+# plt.plot(mu_values_to_investigate, dominant_frequencies,)
+# plt.xlabel('Mu')
+# plt.ylabel('Dominant Frequency (Hz)')
+# plt.title('Dominant Frequency vs Mu')
+# plt.show()
+
+# Print the dominant frequencies
+print("Dominant Frequencies for Different Mu Values:")
+for mu, freq in zip(mu_values_to_investigate, dominant_frequencies):
+    print(f"Mu: {mu:.1f}, Dominant Frequency: {freq:.2f} Hz")
+import numpy as np
+import matplotlib.pyplot as plt
+
+# ... 
+
+# Parameters
+mu_values_to_investigate = np.arange(0, 1.1, 0.1)  # Values of mu from 0 to 1 at 0.1 intervals
+magnitude_of_motion = []
+
+# Loop through different mu values
+for mu in mu_values_to_investigate:
+    t_max = 100.0
+    h = 0.01
+    t_values = np.arange(0, t_max, h)
+    w1_values = []
+    w2_values = []
+
+    # Initial conditions
+    w1, w2 = 0.1, 0.1
+
+    # Time integration loop
+    for t in t_values:
+        w1, w2 = runge_kutta(h, t, w1, w2, mu)
+        w1_values.append(w1)
+        w2_values.append(w2)
+
+    # Perform FFT
+    fft_values = np.fft.fft(w1_values)
+    fft_freq = np.fft.fftfreq(len(t_values), h)
+
+    # Calculate the magnitude of motion (magnitude of Fourier coefficients)
+    magnitude = np.abs(fft_values) / len(t_values)
+
+    # Sum of magnitudes (you can customize this based on your specific needs)
+    total_magnitude = np.sum(magnitude)
+
+    # Store the total magnitude for each mu
+    magnitude_of_motion.append(total_magnitude)
+
+# Plot the results
+plt.plot(mu_values_to_investigate, magnitude_of_motion, marker='o')
+plt.xlabel('Mu')
+plt.ylabel('Magnitude of Motion')
+plt.title('Magnitude of Motion vs Mu')
+plt.show()
+
+# Print the total magnitudes
+print("Total Magnitudes of Motion for Different Mu Values:")
+for mu, mag in zip(mu_values_to_investigate, magnitude_of_motion):
+    print(f"Mu: {mu:.1f}, Total Magnitude: {mag:.2f}")
+
 
